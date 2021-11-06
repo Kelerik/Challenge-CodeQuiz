@@ -17,3 +17,17 @@ var quiz = [
         ],
     },
 ];
+
+// show intro text and start button
+var gameIntro = function () {};
+
+// start game, begin score countdown, display question and multiple choice answers,
+// show feedback when picking answer then display next question, cycle through 10 questions,
+// then show results
+var gameStart = function () {};
+
+// show results and input form to enter name into leaderboard
+var gameEnd = function () {};
+
+// display leaderboard and button to return to intro
+var gameLeaderboard = function () {};
