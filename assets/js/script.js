@@ -18,6 +18,13 @@ var quiz = [
     },
 ];
 
+var mainTextEl = document.querySelector("#main-text");
+var subTextEl = document.querySelector("#sub-text");
+var highscoreEl = document.querySelector("#highscore-list");
+var buttonsEl = document.querySelector("#buttons-wrapper");
+var higscoreFormEl = document.querySelector("#highscore-form");
+var feedbackEl = document.querySelector("#feedback");
+
 // show intro text and start button
 var gameIntro = function () {};
 
