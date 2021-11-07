@@ -62,5 +62,21 @@ var clearButtons = function () {
     buttonsEl.innerHTML = "";
 };
 
+// button function
+var buttonHandler = function (event) {
+    // get the "btnType" data attribute from the click target
+    var targetBtnType = event.target.dataset.btnType;
+
+    // do things depending what button type it was
+    switch (targetBtnType) {
+        case "start":
+            gameStart();
+            break;
+    }
+};
+
+// add click listener to the buttons container
+buttonsEl.addEventListener("click", buttonHandler);
+
 // begin
 gameIntro();
