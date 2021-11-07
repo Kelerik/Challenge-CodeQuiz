@@ -108,7 +108,19 @@ var gameStart = function () {
 
 // show results and input form to enter name into leaderboard
 var gameEnd = function () {
+    // set flag so countdown stops
     gameActive = false;
+    // display results
+    mainTextEl.textContent = "All done!";
+    subTextEl.textContent = "Your final score is " + score + ".";
+    // hide the feedback after a set time
+    setTimeout(function () {
+        feedbackEl.textContent = "";
+    }, 1500);
+    // show input form and submit button
+    higscoreFormEl.innerHTML =
+        "<input type='text' placeholder='Enter your initials' maxlength='2' />";
+    createButton("Submit", "submit");
 };
 
 // display leaderboard and button to return to intro
@@ -124,6 +136,11 @@ var createButton = function (btnText, btnDataAttr) {
     buttonsEl.appendChild(newButtonEl);
 };
 
+// simply delete ALL content in the buttons container
+var clearButtons = function () {
+    buttonsEl.innerHTML = "";
+};
+
 // button function
 var buttonHandler = function (event) {
     // get the "btnType" data attribute from the click target
@@ -133,8 +150,7 @@ var buttonHandler = function (event) {
     // in this program, the buttons always change when any are clicked,
     // so clear them now to prep for the next buttons to appear
     if (targetBtnType) {
-        // simply delete ALL content in the buttons container
-        buttonsEl.innerHTML = "";
+        clearButtons();
     }
 
     // do things depending what button type it was
@@ -152,6 +168,9 @@ var buttonHandler = function (event) {
             score -= 10;
             // for better game responsiveness, update score instantly rather than waiting for the next setInterval
             updateScore();
+            break;
+        case "submit":
+            submitScoreClick();
             break;
     }
 };
@@ -173,12 +192,40 @@ var displayNextQuestion = function () {
 
         questionIndex++;
     } else {
-        gameEnd();
+        gameActive = false;
     }
+};
+
+// submit name and score to leaderboard
+// this function is called when clicking the button.
+var submitScoreClick = function () {
+    // get the value from the input form
+    var nameInput = document.querySelector("#highscore-form").value;
+    // who ever said any input was actually required?
+    if (!nameInput) {
+        nameInput = "anonymous";
+    }
+    // append object to highscore array
+    highscores.push({ savedName: nameInput, savedScore: score });
+    // then move onto leaderboard screen
+    gameLeaderboard();
+};
+// this function is called when hitting the Enter key
+// we make a whole seperate function for that listener because
+// the submit button is dynamically made generic, not a real "submit" type
+var submitScoreEnter = function (event) {
+    // prevent the page from refreshing, then run the real submit function
+    event.preventDefault();
+    submitScoreClick();
+    // this is necessary because buttons are normally cleared only when clicked
+    clearButtons();
 };
 
 // add click listener to the buttons container
 buttonsEl.addEventListener("click", buttonHandler);
+
+// add submit listener to the form
+higscoreFormEl.addEventListener("submit", submitScoreEnter);
 
 // begin
 gameIntro();
