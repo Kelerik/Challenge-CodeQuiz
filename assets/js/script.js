@@ -135,6 +135,8 @@ var gameEnd = function () {
     // set flag so countdown stops
     gameActive = false;
     // display results
+    highscoreLinkEl.textContent = "";
+    scoreEl.textContent = "";
     mainTextEl.textContent = "All done!";
     subTextEl.textContent = "Your final score is " + score + ".";
     // hide the feedback after a set time
@@ -217,7 +219,7 @@ var buttonHandler = function (event) {
                 gameIntro();
                 break;
             case "delete":
-                highscores = "";
+                highscores = [];
                 highscoreListEl.innerHTML = "";
                 feedbackEl.textContent = "Highscores deleted!";
                 setTimeout(function () {
@@ -280,11 +282,12 @@ var submitScoreClick = function () {
 // we make a whole seperate function for that listener because
 // the submit button is dynamically made generic, not a real "submit" type
 var submitScoreEnter = function (event) {
-    // prevent the page from refreshing, then run the real submit function
+    // prevent the page from refreshing
     event.preventDefault();
-    submitScoreClick();
     // this is necessary because buttons are normally cleared only when clicked
     clearButtons();
+    // (NOTE: do this AFTER clearing the buttons) run the real submit function
+    submitScoreClick();
 };
 
 /* Randomize array in-place using Durstenfeld shuffle algorithm */
