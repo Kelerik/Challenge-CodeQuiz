@@ -296,10 +296,48 @@ var submitScoreClick = function () {
     if (!nameInput) {
         nameInput = "anonymous";
     }
-    // append object to highscore array and save
-    highscores.push({ savedName: nameInput, savedScore: score });
+
+    // add object to highscore array in order from highest score to lowest
+
+    // if leaderboard is empty OR if score is higher than the first
+    if (highscores.length === 0 || score > highscores[0].savedScore) {
+        // insert at the start
+        highscores.unshift({ savedName: nameInput, savedScore: score });
+    } else {
+        // loop backwards, starting from end
+        for (let i = highscores.length - 1; i >= 0; i--) {
+            // if score is higher than current indexed score AND lower than previous indexed score
+            if (
+                score > highscores[i].savedScore &&
+                score < highscores[i - 1].savedScore
+            ) {
+                // insert before that index
+                highscores.splice(i - 1, 0, {
+                    savedName: nameInput,
+                    savedScore: score,
+                });
+                break;
+            }
+            // if score is equal to current indexed score
+            else if (score === highscores[i].savedScore) {
+                // insert it at that index (this is why we looped backwards. the existing equal scores are ranked higher)
+                highscores.splice(i, 0, {
+                    savedName: nameInput,
+                    savedScore: score,
+                });
+                break;
+            }
+            // else score is lower than current indexed score
+            else {
+                highscores.splice(i + 1, 0, {
+                    savedName: nameInput,
+                    savedScore: score,
+                });
+            }
+        }
+    }
+    // save then move onto leaderboard screen
     saveHighscores();
-    // then move onto leaderboard screen
     gameHighscoreList();
 };
 // this function is called when hitting the Enter key
