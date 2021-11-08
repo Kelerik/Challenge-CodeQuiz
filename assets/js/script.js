@@ -107,7 +107,7 @@ var gameStart = function () {
     // reset game status
     gameActive = true;
     gameSkipped = false;
-    score = 12;
+    score = 120;
     questionIndex = 0;
     shuffleArray(quiz);
 
