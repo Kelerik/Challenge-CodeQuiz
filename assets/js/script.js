@@ -19,40 +19,61 @@ var quiz = [
         ],
     },
     {
-        question: "q2",
-        choices: ["a1", "a2", "a3", "a4"],
+        question: "Which of the following is a data type?",
+        choices: ["Boolean", "Letter", "Alphanumeric", "Sentence"],
     },
     {
-        question: "q3",
-        choices: ["a1", "a2", "a3", "a4"],
+        question:
+            "What method is used to communicate with the developer without disrupting the user?",
+        choices: [
+            "console.log()",
+            "console.alert()",
+            "console.prompt()",
+            "console.print()",
+        ],
     },
     {
-        question: "q4",
-        choices: ["a1", "a2", "a3", "a4"],
+        question: "A function block must be enclosed in what?",
+        choices: [
+            "Curly braces",
+            "Parenthesis",
+            "Square brackets",
+            "Quotation marks",
+        ],
     },
     {
-        question: "q5",
-        choices: ["a1", "a2", "a3", "a4"],
+        question:
+            "Which of the following options best describes an empty string?",
+        choices: ["Falsy", "Truthy", "False", "True"],
     },
     {
-        question: "q6",
-        choices: ["a1", "a2", "a3", "a4"],
+        question:
+            "The first option to consider when repeating the same task multiple times is...",
+        choices: [
+            "Use a loop",
+            "Repeat the code",
+            "Ask management for advice",
+            "It's impossible",
+        ],
     },
     {
-        question: "q7",
-        choices: ["a1", "a2", "a3", "a4"],
+        question: "What can JavaScript do in regards to the DOM?",
+        choices: [
+            "All of these options",
+            "Modify existing text",
+            "Add new text",
+            "Remove existing text",
+        ],
     },
     {
-        question: "q8",
-        choices: ["a1", "a2", "a3", "a4"],
-    },
-    {
-        question: "q9",
-        choices: ["a1", "a2", "a3", "a4"],
-    },
-    {
-        question: "q10",
-        choices: ["a1", "a2", "a3", "a4"],
+        question:
+            "Which of the following options are NOT true about JavaScript?",
+        choices: [
+            "It always adapts to the website's needs",
+            "It can enhance websites",
+            "It can ruin websites",
+            "Websites can function without it",
+        ],
     },
 ];
 
@@ -60,7 +81,7 @@ var highscoreLinkEl = document.querySelector("#highscore-link");
 var scoreEl = document.querySelector("#score-display");
 var mainTextEl = document.querySelector("#main-text");
 var subTextEl = document.querySelector("#sub-text");
-var highscoreEl = document.querySelector("#highscore-list");
+var highscoreListEl = document.querySelector("#highscore-list");
 var buttonsEl = document.querySelector("#buttons-wrapper");
 var higscoreFormEl = document.querySelector("#highscore-form");
 var feedbackEl = document.querySelector("#feedback");
@@ -73,11 +94,12 @@ var gameIntro = function () {
     mainTextEl.textContent = "JavaScript Quiz Challenge";
     subTextEl.textContent =
         "Welcome to the JavaScript Quiz Challenge! In this challenge, you will have a limited number of time to answer various questions. Selecting an incorrect answer will result in a time penalty, so get ready and stay sharp!";
+    highscoreListEl.innerHTML = "";
     createButton("Start", "start");
 };
 
 // start game, begin score countdown, display question and multiple choice answers,
-// show feedback when picking answer then display next question, cycle through 10 questions,
+// show feedback when picking answer then display next question, cycle through all questions,
 // then show results
 var gameStart = function () {
     // reset game status
@@ -124,7 +146,22 @@ var gameEnd = function () {
 };
 
 // display leaderboard and button to return to intro
-var gameLeaderboard = function () {};
+var gameLeaderboard = function () {
+    mainTextEl.textContent = "Highscores";
+    subTextEl.textContent = "";
+    higscoreFormEl.innerHTML = "";
+
+    // add list items, one for each saved score
+    for (let i = 0; i < highscores.length; i++) {
+        var newListItemEl = document.createElement("li");
+        newListItemEl.textContent =
+            highscores[i].savedName + ": " + highscores[i].savedScore;
+        highscoreListEl.appendChild(newListItemEl);
+    }
+
+    // button to replay
+    createButton("Retake Quiz", "retake");
+};
 
 // dynamically create a button in the buttons container
 // btnText: the text to display in the button
@@ -151,27 +188,30 @@ var buttonHandler = function (event) {
     // so clear them now to prep for the next buttons to appear
     if (targetBtnType) {
         clearButtons();
-    }
 
-    // do things depending what button type it was
-    switch (targetBtnType) {
-        case "start":
-            gameStart();
-            break;
-        case "correct":
-            feedbackEl.textContent = "Correct!";
-            displayNextQuestion();
-            break;
-        case "wrong":
-            feedbackEl.textContent = "Wrong!";
-            displayNextQuestion();
-            score -= 10;
-            // for better game responsiveness, update score instantly rather than waiting for the next setInterval
-            updateScore();
-            break;
-        case "submit":
-            submitScoreClick();
-            break;
+        // do things depending what button type it was
+        switch (targetBtnType) {
+            case "start":
+                gameStart();
+                break;
+            case "correct":
+                feedbackEl.textContent = "Correct!";
+                displayNextQuestion();
+                break;
+            case "wrong":
+                feedbackEl.textContent = "Wrong!";
+                displayNextQuestion();
+                score -= 10;
+                // for better game responsiveness, update score instantly rather than waiting for the next setInterval
+                updateScore();
+                break;
+            case "submit":
+                submitScoreClick();
+                break;
+            case "retake":
+                gameIntro();
+                break;
+        }
     }
 };
 
@@ -183,7 +223,7 @@ var updateScore = function () {
 
 // display next question
 var displayNextQuestion = function () {
-    if (questionIndex < 10) {
+    if (questionIndex < quiz.length) {
         mainTextEl.textContent = quiz[questionIndex].question;
         createButton(quiz[questionIndex].choices[0], "correct");
         createButton(quiz[questionIndex].choices[1], "wrong");
@@ -199,8 +239,8 @@ var displayNextQuestion = function () {
 // submit name and score to leaderboard
 // this function is called when clicking the button.
 var submitScoreClick = function () {
-    // get the value from the input form
-    var nameInput = document.querySelector("#highscore-form").value;
+    // get the value from the input form and convert to uppercase
+    var nameInput = document.querySelector("input").value.toUpperCase();
     // who ever said any input was actually required?
     if (!nameInput) {
         nameInput = "anonymous";
