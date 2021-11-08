@@ -95,6 +95,7 @@ var gameIntro = function () {
     subTextEl.textContent =
         "Welcome to the JavaScript Quiz Challenge! In this challenge, you will have a limited number of time to answer various questions. Selecting an incorrect answer will result in a time penalty, so get ready and stay sharp!";
     highscoreListEl.innerHTML = "";
+    feedbackEl.textContent = "";
     createButton("Start", "start");
 };
 
@@ -106,6 +107,7 @@ var gameStart = function () {
     gameActive = true;
     score = 120;
     questionIndex = 0;
+    shuffleArray(quiz);
 
     // for better game responsiveness, update score instantly rather than waiting for the next setInterval
     updateScore();
@@ -146,7 +148,7 @@ var gameEnd = function () {
 };
 
 // display leaderboard and button to return to intro
-var gameLeaderboard = function () {
+var gameHighscoreList = function () {
     mainTextEl.textContent = "Highscores";
     subTextEl.textContent = "";
     higscoreFormEl.innerHTML = "";
@@ -159,17 +161,20 @@ var gameLeaderboard = function () {
         highscoreListEl.appendChild(newListItemEl);
     }
 
-    // button to replay
+    // buttons
     createButton("Retake Quiz", "retake");
+    createButton("Delete highscores", "delete");
 };
 
 // dynamically create a button in the buttons container
 // btnText: the text to display in the button
 // btnDataAttr: data attribute to describe the button's purpose
-var createButton = function (btnText, btnDataAttr) {
+// btnOrder: (optional) order to display the button when multiple buttons are made
+var createButton = function (btnText, btnDataAttr, btnOrder) {
     var newButtonEl = document.createElement("button");
     newButtonEl.textContent = btnText;
     newButtonEl.dataset.btnType = btnDataAttr;
+    newButtonEl.style.order = btnOrder;
     buttonsEl.appendChild(newButtonEl);
 };
 
@@ -211,6 +216,13 @@ var buttonHandler = function (event) {
             case "retake":
                 gameIntro();
                 break;
+            case "delete":
+                highscores = "";
+                highscoreListEl.innerHTML = "";
+                feedbackEl.textContent = "Highscores deleted!";
+                setTimeout(function () {
+                    gameIntro();
+                }, 2000);
         }
     }
 };
@@ -223,13 +235,27 @@ var updateScore = function () {
 
 // display next question
 var displayNextQuestion = function () {
+    var correctOrWrong = "";
     if (questionIndex < quiz.length) {
+        // display question
         mainTextEl.textContent = quiz[questionIndex].question;
-        createButton(quiz[questionIndex].choices[0], "correct");
-        createButton(quiz[questionIndex].choices[1], "wrong");
-        createButton(quiz[questionIndex].choices[2], "wrong");
-        createButton(quiz[questionIndex].choices[3], "wrong");
+        // creat button for each choice one by one
+        for (let i = 0; i < quiz[questionIndex].choices.length; i++) {
+            // the FIRST item is the correct answer
+            if (i === 0) {
+                correctOrWrong = "correct";
+            } else {
+                correctOrWrong = "wrong";
+            }
+            createButton(
+                quiz[questionIndex].choices[i],
+                correctOrWrong,
+                // randomize order (CSS flexbox property)
+                Math.floor(Math.random() * 100)
+            );
+        }
 
+        // keep track of how many questions have been done
         questionIndex++;
     } else {
         gameActive = false;
@@ -248,7 +274,7 @@ var submitScoreClick = function () {
     // append object to highscore array
     highscores.push({ savedName: nameInput, savedScore: score });
     // then move onto leaderboard screen
-    gameLeaderboard();
+    gameHighscoreList();
 };
 // this function is called when hitting the Enter key
 // we make a whole seperate function for that listener because
@@ -259,6 +285,17 @@ var submitScoreEnter = function (event) {
     submitScoreClick();
     // this is necessary because buttons are normally cleared only when clicked
     clearButtons();
+};
+
+/* Randomize array in-place using Durstenfeld shuffle algorithm */
+// https://stackoverflow.com/a/12646864
+var shuffleArray = function (array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
 };
 
 // add click listener to the buttons container
