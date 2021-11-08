@@ -306,33 +306,26 @@ var submitScoreClick = function () {
     } else {
         // loop backwards, starting from end
         for (let i = highscores.length - 1; i >= 0; i--) {
-            // if score is higher than current indexed score AND lower than previous indexed score
-            if (
-                score > highscores[i].savedScore &&
-                score < highscores[i - 1].savedScore
-            ) {
-                // insert before that index
-                highscores.splice(i - 1, 0, {
+            // if score is lower than OR equal to current indexed score
+            if (score < highscores[i].savedScore) {
+                // insert after that index
+                highscores.splice(i + 1, 0, {
                     savedName: nameInput,
                     savedScore: score,
                 });
                 break;
             }
-            // if score is equal to current indexed score
-            else if (score === highscores[i].savedScore) {
-                // insert it at that index (this is why we looped backwards. the existing equal scores are ranked higher)
+            // if score is higher than current indexed score AND lower than previous indexed score
+            else if (
+                score > highscores[i].savedScore &&
+                score < highscores[i - 1].savedScore
+            ) {
+                // insert at that index
                 highscores.splice(i, 0, {
                     savedName: nameInput,
                     savedScore: score,
                 });
                 break;
-            }
-            // else score is lower than current indexed score
-            else {
-                highscores.splice(i + 1, 0, {
-                    savedName: nameInput,
-                    savedScore: score,
-                });
             }
         }
     }
