@@ -2,6 +2,7 @@
 var highscores = [];
 
 // game status
+var gameSkipped = false;
 var gameActive = false;
 var score = 0;
 var questionIndex = 0;
@@ -105,7 +106,8 @@ var gameIntro = function () {
 var gameStart = function () {
     // reset game status
     gameActive = true;
-    score = 120;
+    gameSkipped = false;
+    score = 12;
     questionIndex = 0;
     shuffleArray(quiz);
 
@@ -119,9 +121,14 @@ var gameStart = function () {
             updateScore();
         } else {
             clearInterval(countdownInterval);
-            // it's important that we don't call this function anywhere else, otherwise it could trigger twice:
-            // once from that other instance, and again from this setInterval
-            gameEnd();
+            // clicking the highscores link will skip the game. if that didn't happen, proceed normally
+            if (!gameSkipped) {
+                // this needs to be called in case the game times out
+                clearButtons();
+                // it's important that we don't call this function anywhere else, otherwise it could trigger twice:
+                // once from that other instance, and again from this setInterval
+                gameEnd();
+            }
         }
     }, 1000);
 
@@ -135,8 +142,7 @@ var gameEnd = function () {
     // set flag so countdown stops
     gameActive = false;
     // display results
-    highscoreLinkEl.textContent = "";
-    scoreEl.textContent = "";
+    hideHeader();
     mainTextEl.textContent = "All done!";
     subTextEl.textContent = "Your final score is " + score + ".";
     // hide the feedback after a set time
@@ -166,6 +172,22 @@ var gameHighscoreList = function () {
     // buttons
     createButton("Retake Quiz", "retake");
     createButton("Delete highscores", "delete");
+};
+
+// skip to the leaderboard
+var skipToHighscoreList = function () {
+    gameSkipped = true;
+    gameActive = false;
+    feedbackEl.textContent = "";
+    clearButtons();
+    hideHeader();
+    gameHighscoreList();
+};
+
+// hide header
+var hideHeader = function () {
+    highscoreLinkEl.textContent = "";
+    scoreEl.textContent = "";
 };
 
 // dynamically create a button in the buttons container
@@ -222,6 +244,7 @@ var buttonHandler = function (event) {
                 highscores = [];
                 highscoreListEl.innerHTML = "";
                 feedbackEl.textContent = "Highscores deleted!";
+                saveHighscores();
                 setTimeout(function () {
                     gameIntro();
                 }, 2000);
@@ -273,8 +296,9 @@ var submitScoreClick = function () {
     if (!nameInput) {
         nameInput = "anonymous";
     }
-    // append object to highscore array
+    // append object to highscore array and save
     highscores.push({ savedName: nameInput, savedScore: score });
+    saveHighscores();
     // then move onto leaderboard screen
     gameHighscoreList();
 };
@@ -290,6 +314,26 @@ var submitScoreEnter = function (event) {
     submitScoreClick();
 };
 
+// save highscores to local storage
+var saveHighscores = function () {
+    // if not empty, save to local storage
+    if (highscores.length > 0) {
+        localStorage.setItem("savedHighscores", JSON.stringify(highscores));
+    }
+    // otherwise, delete from local storage
+    else {
+        localStorage.removeItem("savedHighscores");
+    }
+};
+
+// load highscores from local storage
+var loadHighscores = function () {
+    var loadedHighscores = JSON.parse(localStorage.getItem("savedHighscores"));
+    if (loadedHighscores) {
+        highscores = loadedHighscores;
+    }
+};
+
 /* Randomize array in-place using Durstenfeld shuffle algorithm */
 // https://stackoverflow.com/a/12646864
 var shuffleArray = function (array) {
@@ -301,6 +345,8 @@ var shuffleArray = function (array) {
     }
 };
 
+// add click listener to the "view high scores link"
+highscoreLinkEl.addEventListener("click", skipToHighscoreList);
 // add click listener to the buttons container
 buttonsEl.addEventListener("click", buttonHandler);
 
@@ -308,4 +354,5 @@ buttonsEl.addEventListener("click", buttonHandler);
 higscoreFormEl.addEventListener("submit", submitScoreEnter);
 
 // begin
+loadHighscores();
 gameIntro();
