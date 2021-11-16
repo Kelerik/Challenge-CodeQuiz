@@ -307,7 +307,7 @@ var submitScoreClick = function () {
         // loop backwards, starting from end
         for (let i = highscores.length - 1; i >= 0; i--) {
             // if score is lower than OR equal to current indexed score
-            if (score < highscores[i].savedScore) {
+            if (score <= highscores[i].savedScore) {
                 // insert after that index
                 highscores.splice(i + 1, 0, {
                     savedName: nameInput,
